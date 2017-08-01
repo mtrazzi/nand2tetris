@@ -1,0 +1,9 @@
+CHIP IsZero {
+	IN in[16];
+	OUT out;
+	PARTS:
+		Or8Way(in=in[0..7], out=firstBits);
+		Or8Way(in=in[8..15], out=lastBits);
+		Or (a=firstBits, b=lastBits, out=isNotZero);
+		Not (in=isNotZero, out=out);
+}
