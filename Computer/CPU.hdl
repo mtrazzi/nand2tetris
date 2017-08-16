@@ -35,13 +35,40 @@ CHIP CPU {
 
     PARTS:
 	
-	And16(a=instruction, b=true, out[0]=upCode ,out[1]=b1, out[2]=b2, out[3]=a,  out[4]=c1,  out[5]=c2,  out[6]=c3,  out[7]=c4,  out[8]=c5,  out[9]=c6,  out[10]=d1,  out[11]=d2,  out[12]=d3,  out[13]=j1,  out[14]=j2,  out[15]=j3); //Separates the first instruction
-	Register(in=FirstMuxOutput , load=d1 , out=ARegisterOutput); //A Register
-	Register(in=ALUOutput ,load=d2 , out=DRegisterOutput); //D Register
-	Mux16(a=instruction,b=ALUOutput, sel=upCode, out=FirstMuxOutput); //First Mux 
+	And16(a=instruction, b=true, out[15]=opCode ,out[14]=b1, out[13]=b2, out[12]=a,  out[11]=c1,  out[10]=c2,  out[9]=c3,  out[8]=c4,  out[7]=c5,  out[6]=c6,  out[5]=d1,  out[4]=d2,  out[3]=d3,  out[2]=j1,  out[1]=j2,  out[0]=j3); //Separates the first instruction
+	And(a=opCode, b=d1, out=loadFirstMux);
+	Not(in=opCode, out=notOpCode);
+	Or(a=d1, b=notOpCode, out=loadARegister);
+	And(a=opCode, b=d2, out=loadDRegister);
+	ARegister(in=FirstMuxOutput , load=loadARegister, out=ARegisterOutput); //A Register
+	DRegister(in=ALUOutput ,load=loadDRegister, out=DRegisterOutput); //D Register
+	Mux16(a=instruction,b=ALUOutput, sel=loadFirstMux, out=FirstMuxOutput); //First Mux 
 	Mux16(a=ARegisterOutput,b=inM,sel=a,out=SecondMuxOutput); //Second Mux
 	ALU(x=DRegisterOutput, y=SecondMuxOutput,zx=c1 ,nx=c2 ,zy=c3 ,ny=c4 ,f=c5 ,no=c6 ,out=ALUOutput ,zr=zr ,ng=ng); //ALU
-	And16(a=ARegisterOutput,  out[=true, out[0..15]=addressM); //Separates bits from output of A Register to addressM
-	PC(in=ARegisterOutput ,load= ,inc= ,reset= ,out[0..15]=pc); //PC
-		
+	And16(a=ARegisterOutput,  b=true, out[0..14]=addressM); //Separates bits from output of A Register to addressM
+	Not(in=j1 ,out=notj1);
+	Not(in=j2 ,out=notj2);
+	Not(in=j3 ,out=notj3);
+	Not(in=ng, out=notng);
+	Not(in=zr, out=notzr);
+	Or(a=zr, b=ng, out=le);
+	And(a=notng, b=notzr, out=gt);
+	ANDfour(a=notj1, b=notj2, c=j3, d=gt, out=jgt);
+	ANDfour(a=notj1, b=j2, c=notj3, d=zr, out=jeq);
+	ANDfour(a=notj1, b=j2, c=j3, d=notng, out=jge);
+	ANDfour(a=j1, b=notj2, c=notj3, d=ng, out=jlt);
+	ANDfour(a=j1, b=notj2, c=j3, d=notzr, out=jne);
+	ANDfour(a=j1, b=j2, c=notj3, d=le, out=jle);
+	ANDfour(a=j1, b=j2, c=j3, d=true, out=jmp);
+	ANDfour(a=notj1, b=notj2, c=notj3, d=true, out=nul);
+	Or(a=jgt ,b=jeq, out=jgtOrjeq);
+	Or(a=jge ,b=jlt, out=jgeOrjlt);
+	Or(a=jgtOrjeq, b=jgeOrjlt, out=jgtOrjeqOrjgeOrjlt);
+	Or(a=jne ,b=jle, out=jneOrjle);
+	Or(a=jneOrjle, b=jmp, out=jneOrjleOrjmp);
+	Or(a=jgtOrjeqOrjgeOrjlt, b=jneOrjleOrjmp, out=doJump);
+	And(a=doJump, b=opCode, out=load);
+	PC(in=ARegisterOutput ,load=load ,inc=true ,reset=reset ,out[0..14]=pc); //PC
+	And(a=opCode, b=d3, out=writeM);
+	And16(a=true, b=ALUOutput, out=outM);
 }
