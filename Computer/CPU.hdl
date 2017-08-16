@@ -1,0 +1,47 @@
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ * The CPU is designed to fetch and execute instructions written in 
+ * the Hack machine language. In particular, functions as follows:
+ * Executes the inputted instruction according to the Hack machine 
+ * language specification. The D and A in the language specification
+ * refer to CPU-resident registers, while M refers to the external
+ * memory location addressed  out[y A, i.e. to Memory[A]. The inM input 
+ * holds the value of this location. If the current instruction needs 
+ * to write a value to M, the value is placed in outM, the address 
+ * of the target location is placed in the addressM output, and the 
+ * writeM control  out[it is asserted. (When writeM==0, any value may 
+ * appear in outM). The outM and writeM outputs are combinational: 
+ * they are affected instantaneously  out[y the execution of the current 
+ * instruction. The addressM and pc outputs are clocked: although they 
+ * are affected  out[y the execution of the current instruction, they commit 
+ * to their new values only in the next time step. If reset==1 then the 
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
+ * than to the address resulting from executing the current instruction. 
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+	
+	And16(a=instruction, b=true, out[0]=upCode ,out[1]=b1, out[2]=b2, out[3]=a,  out[4]=c1,  out[5]=c2,  out[6]=c3,  out[7]=c4,  out[8]=c5,  out[9]=c6,  out[10]=d1,  out[11]=d2,  out[12]=d3,  out[13]=j1,  out[14]=j2,  out[15]=j3); //Separates the first instruction
+	Register(in=FirstMuxOutput , load=d1 , out=ARegisterOutput); //A Register
+	Register(in=ALUOutput ,load=d2 , out=DRegisterOutput); //D Register
+	Mux16(a=instruction,b=ALUOutput, sel=upCode, out=FirstMuxOutput); //First Mux 
+	Mux16(a=ARegisterOutput,b=inM,sel=a,out=SecondMuxOutput); //Second Mux
+	ALU(x=DRegisterOutput, y=SecondMuxOutput,zx=c1 ,nx=c2 ,zy=c3 ,ny=c4 ,f=c5 ,no=c6 ,out=ALUOutput ,zr=zr ,ng=ng); //ALU
+	And16(a=ARegisterOutput,  out[=true, out[0..15]=addressM); //Separates bits from output of A Register to addressM
+	PC(in=ARegisterOutput ,load= ,inc= ,reset= ,out[0..15]=pc); //PC
+		
+}
