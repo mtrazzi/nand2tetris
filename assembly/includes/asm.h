@@ -12,6 +12,7 @@ typedef struct		s_asm
 {
 	t_list			*lst;
 	int				fd;
+	t_line_lst		*sym_tab;
 }					t_asm;
 
 /*
@@ -69,7 +70,18 @@ int					ft_is_whitespace(char *line);
 */
 
 void				ft_process_asm(t_asm *e);
-char				*ft_translate_a_instruction(char *line);
-t_cins				*ft_parse_c_instruction(char *line);
+char				*ft_translate_a_instruction(int n);
+t_cins				*ft_parse_c_instruction(t_asm *e, char *line);
+
+/*
+** Functions for the symbol table
+*/
+
+
+void				ft_start_table(t_asm *e);
+int					ft_give_symbol(char *sym, t_line_lst *line_lst);
+t_line_lst			*ft_add_symbol(t_line_lst **line_lst, int fd, char *line);
+void				ft_print_sym_table(t_line_lst *lst);
+void				ft_first_pass(t_asm *e);
 
 #endif

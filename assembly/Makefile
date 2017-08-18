@@ -6,7 +6,7 @@
 #    By: mtrazzi <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/08/16 18:16:04 by mtrazzi           #+#    #+#              #
-#    Updated: 2017/08/17 16:38:41 by mtrazzi          ###   ########.fr        #
+#    Updated: 2017/08/18 11:08:37 by mtrazzi          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,8 +41,9 @@ SRC_FILES		=	main.c					\
 					ft_error_asm.c			\
 					ft_write_asm.c			\
 					ft_process_asm.c		\
-					ft_translate.c
-					
+					ft_translate.c			\
+					ft_sym_tab.c			\
+					ft_process_sym.c
 
 SRC				=	$(addprefix $(SRC_PATH), $(SRC_FILES))
 

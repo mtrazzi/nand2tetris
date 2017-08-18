@@ -1,12 +1,10 @@
 #include "asm.h"
 
-char	*ft_translate_a_instruction(char *line)
+char	*ft_translate_a_instruction(int n)
 {
-	int 	n;
 	int 	i;
 	char	*str;
 
-	n = ft_atoi(line + 1);
 	i = 0;
 	str = ft_strnew(17);
 	while (i < 15)
@@ -51,7 +49,6 @@ void	ft_change_c(char *str, t_cins *t)
 	t->c[3] = str[3];
 	t->c[4] = str[4];
 	t->c[5] = str[5];
-
 }
 
 void	ft_change_j(char *str, t_cins *t)
@@ -71,8 +68,12 @@ void	ft_parse_computation(char *line, t_cins *t)
 		str = ft_strchr(line, '=') + 1;
 	else
 		str = line;
-	if(ft_strchr(str, ';'))
+	if (ft_strchr(str, ';'))
 		*(ft_strchr(str, ';')) = '\0';
+	else if (ft_strchr(str, ' '))
+		*(ft_strchr(str, ' ')) = '\0';
+	else if (ft_strchr(str, '\n'))
+		*(ft_strchr(str, '\n')) = '\0';
 	t->a = (ft_strchr(str, 'M') ? '1' : '0');
 	if (!ft_strcmp(str, "0"))
 		ft_change_c("101010", t);
@@ -139,7 +140,9 @@ void	ft_parse_jump(char *line, t_cins *t)
 	t->j[0] = '0';
 	t->j[1] = '0';
 	t->j[2] = '0';
-	str = ft_strchr(line, ';');		
+	str = ft_strchr(line, ';');
+	if (ft_strchr(line, ' '))
+		*(ft_strchr(line, ' ')) = '\0';
 	if (!str)
 		return ;
 	str++;
@@ -159,7 +162,7 @@ void	ft_parse_jump(char *line, t_cins *t)
 		ft_change_j("111", t);
 }
 
-t_cins	*ft_parse_c_instruction(char *line)
+t_cins	*ft_parse_c_instruction(t_asm *e, char *line)
 {
 	t_cins	*t;
 
@@ -167,5 +170,11 @@ t_cins	*ft_parse_c_instruction(char *line)
 	ft_parse_destination(line, t);
 	ft_parse_jump(line, t);
 	ft_parse_computation(line, t);
+	ft_write_to_fd(e, "111", 3);
+	ft_write_to_fd(e, &t->a, 1);
+	ft_write_to_fd(e, t->c, 6);
+	ft_write_to_fd(e, t->d, 3);
+	ft_write_to_fd(e, t->j, 3);
+	ft_write_to_fd(e, "\n", 1);
 	return (t);	
 }

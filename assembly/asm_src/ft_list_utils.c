@@ -26,7 +26,7 @@ char	*ft_pop_lst(t_list **lst)
 	s = ft_strdup((char *)(*lst)->content);
     tmp = *lst;
     *lst = (*lst)->next;
-    ft_memdel((void **)&tmp->content);
+    //ft_memdel((void **)&tmp->content);
     ft_memdel((void **)&tmp);
     return (s);
 }
