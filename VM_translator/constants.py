@@ -9,3 +9,4 @@ C_RETURN = 7
 C_CALL = 8
 C_COMMENT = 9
 C_WHITESPACE = 10
+dic = {'add': C_ARITHMETIC, 'sub': C_ARITHMETIC, 'neg': C_ARITHMETIC,'eq': C_ARITHMETIC,  'gt': C_ARITHMETIC, 'lt': C_ARITHMETIC, 'and': C_ARITHMETIC, 'or': C_ARITHMETIC, 'not': C_ARITHMETIC, 'push': C_PUSH, 'pop': C_POP, '//':C_COMMENT, 'function':C_FUNCTION,'return':C_RETURN, 'label':C_LABEL, 'call':C_CALL, 'goto':C_GOTO}

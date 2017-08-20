@@ -1,18 +1,14 @@
-import constants
+import constants as c
 import push_pop
 import parser
 
 class CodeWriter: 
-    def __init__(self, file_name, parser):
-        new_name = file_name.rsplit('.', 1)[1] + '.asm' 
+    def __init__(self, file_name):
+        new_name = file_name.split('.')[0] + '.asm'
         self.file = open(new_name, 'w')
-        self.parser = parser
-    def write_arithmetic(self):
-        
-    def write_push_pop(self, command):
-        if (self.parser.command_type() == C_PUSH):
-            push(self.parser)
-    
-             
-        
-        
+    def write_arithmetic(self, p):
+        return
+    def write_push_pop(self, p):
+        self.file.write('// ' +  p.command)
+        if (p.command_type() == c.C_PUSH):
+            self.file.write(push_pop.push(p))
