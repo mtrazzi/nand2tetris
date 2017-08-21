@@ -1,26 +1,26 @@
 tab = {'local':'LCL', 'argument':'ARG', 'this':'THIS', 'that':'THAT', 'temp':'TMP'} 
 
 def push(pars):
-    if (pars.arg1() in ['local', 'argument', 'this', 'that', 'temp']):
+    if (pars.arg1() in tab):
         return push_addr(tab[pars.arg1()], pars.arg2())
     elif (pars.arg1() == 'constant'):
         return push_constant(pars.arg2())
     elif (pars.arg1() == 'pointer' and pars.arg2() == '0'):
-        return push_addr('THIS', 0)
+        return push_addr('pointer0', 0)
     elif (pars.arg1() == 'pointer' and pars.arg2() == '1'):
-        return push_addr('THAT', 0)
+        return push_addr('pointer1', 0)
     elif (pars.arg1() == 'static'):
         return push_static(pars, pars.arg2())
     else:
         return '//TO DO (PUSH)\n'
 
 def pop(pars):
-    if (pars.arg1() in ['locale', 'argument', 'this', 'that', 'temp']):
+    if (pars.arg1() in tab):
         return pop_addr(tab[pars.arg1()], pars.arg2())
     elif (pars.arg1() == 'pointer' and pars.arg2() == '0'):
-        return pop_addr('THIS', 0)
+        return pop_addr('pointer0', 0)
     elif (pars.arg1() == 'pointer' and pars.arg2() == '1'):
-        return pop_addr('THAT', 0)
+        return pop_addr('pointer1', 0)
     elif (pars.arg1() == 'static'):
         return pop_static(pars, pars.arg2())
     else:
@@ -32,8 +32,9 @@ def get_addr(addr):
     return s
 
 def get_addr_d(addr):
-    if (addr == 'TMP'):
-        return '@5\nD=A\n'
+    d = {'TMP': '5', 'pointer0': '3', 'pointer1': '4'}
+    if (addr in d):
+        return '@' + d[addr] + '\n' + 'D=A\n'
     s =  '@' + str(addr) + '\n'
     s += 'D=M\n'
     return s
@@ -99,7 +100,7 @@ def push_constant(i):
     return s
 
 def push_static(p, i):
-    s =  '@' + p.file_name + '.' + str(i) + '\n'
+    s =  '@' + p.file_name.split('/')[-1] + '.' + str(i) + '\n'
     s += 'D=M\n'
     s += get_addr('SP')
     s += 'M=D\n'
@@ -110,6 +111,6 @@ def pop_static(p, i):
     s =  change_content('SP', '-1')
     s += get_addr('SP')
     s += 'D=M\n' 
-    s += '@' + p.file_name + '.' + str(i) + '\n'
+    s += '@' + p.file_name.split('/')[-1] + '.' + str(i) + '\n'
     s += 'M=D\n'
     return s

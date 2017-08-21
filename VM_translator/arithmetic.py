@@ -38,7 +38,7 @@ def _or():
     return operation_two_arg('D|M')
 
 def _not():
-    return operation_two_arg('!M')
+    return operation_one_arg('!M')
 
 def condition(name, suffix): #suffix to make label unique
     """
