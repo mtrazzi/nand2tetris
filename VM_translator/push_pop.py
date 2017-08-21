@@ -1,4 +1,4 @@
-tab = {'local':'LCL', 'argument':'ARG', 'this':'THIS', 'that':'THAT', 'temp':'5'} 
+tab = {'local':'LCL', 'argument':'ARG', 'this':'THIS', 'that':'THAT', 'temp':'TMP'} 
 
 def push(pars):
     if (pars.arg1() in ['local', 'argument', 'this', 'that', 'temp']):
@@ -10,9 +10,9 @@ def push(pars):
     elif (pars.arg1() == 'pointer' and pars.arg2() == '1'):
         return push_addr('THAT', 0)
     elif (pars.arg1() == 'static'):
-        return push_static(pars, i)
+        return push_static(pars, pars.arg2())
     else:
-        return '//TO DO\n'
+        return '//TO DO (PUSH)\n'
 
 def pop(pars):
     if (pars.arg1() in ['locale', 'argument', 'this', 'that', 'temp']):
@@ -22,13 +22,20 @@ def pop(pars):
     elif (pars.arg1() == 'pointer' and pars.arg2() == '1'):
         return pop_addr('THAT', 0)
     elif (pars.arg1() == 'static'):
-        return pop_static(pars, i)
+        return pop_static(pars, pars.arg2())
     else:
-        return '//TO DO\n'
+        return '//TO DO (POP)\n'
 
 def get_addr(addr):
     s =  '@' + str(addr) + '\n'
     s += 'A=M\n'
+    return s
+
+def get_addr_d(addr):
+    if (addr == 'TMP'):
+        return '@5\nD=A\n'
+    s =  '@' + str(addr) + '\n'
+    s += 'D=M\n'
     return s
 
 def push_addr(addr, i): #receives LCL, ARG, THIS, THAT
@@ -36,8 +43,7 @@ def push_addr(addr, i): #receives LCL, ARG, THIS, THAT
     pseudo-code :
         addr = segmentPointer + i, *SP = *addr, SP++
     """
-    s =  get_addr(addr) 
-    s += 'D=M\n'
+    s =  get_addr_d(addr) 
     s += add_constant(i)
     s += 'A=D\n'
     s += 'D=M\n'                # D = *(mem_seg_bas_add + i) 
@@ -52,8 +58,7 @@ def pop_addr(addr, i): #receives LCL, ARG, THIS, THAT
         addr = segmentPointer + i, SP--, *addr = *SP (pop segment i)
     """
     s = change_content('SP', '-1') 
-    s +=  get_addr(addr) 
-    s += 'D=M\n'
+    s +=  get_addr_d(addr) 
     s += add_constant(i)         
     s += '@R13\n'
     s += 'M=D\n'                # R13 = (mem_seg_bas_add + i)
@@ -90,6 +95,7 @@ def push_constant(i):
     s += '@SP\n'
     s += 'A=M\n'
     s += 'M=D\n'
+    s += change_content('SP', '+1')
     return s
 
 def push_static(p, i):
@@ -98,6 +104,7 @@ def push_static(p, i):
     s += get_addr('SP')
     s += 'M=D\n'
     s +=  change_content('SP', '+1')
+    return s
 
 def pop_static(p, i):
     s =  change_content('SP', '-1')
@@ -105,3 +112,4 @@ def pop_static(p, i):
     s += 'D=M\n' 
     s += '@' + p.file_name + '.' + str(i) + '\n'
     s += 'M=D\n'
+    return s

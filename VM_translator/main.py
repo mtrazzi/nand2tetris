@@ -12,5 +12,6 @@ while (p.has_more_commands()):
     c_type = p.command_type()
     if (c_type == c.C_ARITHMETIC):
         cw.write_arithmetic(p)
-    elif (c_type == c.C_PUSH):
+    elif (c_type in [c.C_PUSH, c.C_POP]):
         cw.write_push_pop(p)
+cw.close()
